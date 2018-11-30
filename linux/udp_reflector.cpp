@@ -313,16 +313,16 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
     {
         if ( (i&0xf)==0 )
             printf("\n-- ");
-        printf(" %02x", ((const char *) packet)[i]);
+        printf(" %02x", packet[i]);
     }
     printf(".\n");
-    mc_len = (packet[0x18]<<8) + packet[0x19] - 8;
-    printf("-- udp bytes decoded %d:", mc_len);
+    mc_len = (int(packet[0x18])<<8) + int(packet[0x19]) - 8;
+    printf("-- udp bytes decoded %d from hex length: %02x %02x", mc_len, packet[0x18], packet[0x19]);
     for (int i=0; i<mc_len; i++)
     {
         if ( (i&0xf)==0 )
             printf("\n-- ");
-        printf(" %02x", ((const char *) packet)[0x1c+i]);
+        printf(" %02x", packet[0x1c+i]);
     }
     printf(".\n");
     /* 0x18, 0x19 */
