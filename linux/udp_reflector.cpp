@@ -285,8 +285,6 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
 
     bool ignore_packet = false;
     int bytes_sent;
-
-    int mc_len;
     
     /* Determine if the packet should be ignored */
     for (unsigned j = 0; j < ignore_ports.size(); j++)
@@ -307,7 +305,6 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
     if (ignore_packet)
         return;
 
-    printf("-- DATA_OFFSET = %d\n", DATA_OFFSET);
     printf("-- detected %d IP msg bytes, hex:", header->len);
     for (int i = 0; i < header->len; i++ )
     {
@@ -316,16 +313,6 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
         printf(" %02x", packet[i]);
     }
     printf(".\n");
-    mc_len = (int(packet[0x18])<<8) + int(packet[0x19]) - 8;
-    printf("-- udp bytes decoded %d from hex length: %02x %02x", mc_len, packet[0x18], packet[0x19]);
-    for (int i=0; i<mc_len; i++)
-    {
-        if ( (i&0xf)==0 )
-            printf("\n-- ");
-        printf(" %02x", packet[0x1c+i]);
-    }
-    printf(".\n");
-    /* 0x18, 0x19 */
 
     /* Send UDP packet to each destination point */
     for (unsigned i = 0; i < destination_points.size(); i++)
