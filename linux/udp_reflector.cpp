@@ -411,7 +411,7 @@ int main(int argc, char *argv[])
                 {
                     if (strncmp(pcap_dev, "pcap", 4) != 0)
                     {
-                        fprintf(stderr, "Invalid source pcap interface");
+                        fprintf(stderr, "Invalid source pcap interface (see -l for a list of available interfaces)");
                         exit(1);
                     }
 
