@@ -97,6 +97,7 @@ void enumerate_devices()
         Network_Device net_dev;
         strcpy(net_dev.device_name, dev->name);
 
+        net_dev.device_desc[0] = '\0';
         if (dev->description)
             strcpy(net_dev.device_desc, dev->description);
 
