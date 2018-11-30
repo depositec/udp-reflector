@@ -318,8 +318,9 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
     printf(".\n");
 
     udp_len = header->len - DATA_OFFSET - tweak_offset;
-    if (udp_hdr->len < udp_len)
-        udp_len = udp_hdr->len;
+    udp_hdr->len = ntohs(udp_hdr->len);
+    if (udp_hdr->len-8 < udp_len)
+        udp_len = udp_hdr->len-8;
     printf("-- UDP length detected as %d\n", udp_len);
 
     /* Send UDP packet to each destination point */
