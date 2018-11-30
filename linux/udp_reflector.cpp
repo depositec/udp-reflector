@@ -330,10 +330,16 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
     /* Send UDP packet to each destination point */
     for (unsigned i = 0; i < destination_points.size(); i++)
     {
+        bytes_sent = sendto(socket_desc, (const char *) packet + 0x1c,
+                mc_len, 0,
+                (struct sockaddr *) &destination_points[i].dest_sock_addr,
+                sizeof(destination_points[i].dest_sock_addr));
+        /*
         bytes_sent = sendto(socket_desc, (const char *) packet + DATA_OFFSET,
                 header->len - DATA_OFFSET, 0,
                 (struct sockaddr *) &destination_points[i].dest_sock_addr,
                 sizeof(destination_points[i].dest_sock_addr));
+                */
 
         if (verbose_debug)
         {
