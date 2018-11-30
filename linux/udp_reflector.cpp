@@ -287,6 +287,7 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
 
     bool ignore_packet = false;
     int bytes_sent;
+    int udp_len;
     
     /* Determine if the packet should be ignored */
     for (unsigned j = 0; j < ignore_ports.size(); j++)
@@ -316,12 +317,17 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
     }
     printf(".\n");
 
+    udp_len = header->len - DATA_OFFSET - tweak_offset;
+    if (udp_hdr->len < udp_len)
+        udp_len = udp_hdr->len;
+    printf("-- UDP length detected as %d\n", udp_len);
+
     /* Send UDP packet to each destination point */
     for (unsigned i = 0; i < destination_points.size(); i++)
     {
         bytes_sent = sendto(socket_desc,
                 (const char *) packet + DATA_OFFSET + tweak_offset,
-                header->len - DATA_OFFSET - tweak_offset,
+                udp_len,
                 0,
                 (struct sockaddr *) &destination_points[i].dest_sock_addr,
                 sizeof(destination_points[i].dest_sock_addr));
