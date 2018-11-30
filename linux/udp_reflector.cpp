@@ -285,6 +285,8 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
 
     bool ignore_packet = false;
     int bytes_sent;
+
+    int mc_len;
     
     /* Determine if the packet should be ignored */
     for (unsigned j = 0; j < ignore_ports.size(); j++)
@@ -314,6 +316,16 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
         printf(" %02x", ((const char *) packet)[i]);
     }
     printf(".\n");
+    mc_len = (packet[0x18]<<8) + packet[0x19] - 8;
+    printf("-- udp bytes decoded %d:", mc_len);
+    for (int i=0; i<mc_len; i++)
+    {
+        if ( (i&0xf)==0 )
+            printf("\n-- ");
+        printf(" %02x", ((const char *) packet)[0x1c+i]);
+    }
+    printf(".\n");
+    /* 0x18, 0x19 */
 
     /* Send UDP packet to each destination point */
     for (unsigned i = 0; i < destination_points.size(); i++)
