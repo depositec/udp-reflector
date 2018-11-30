@@ -305,6 +305,15 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
     if (ignore_packet)
         return;
 
+    printf("-- detected %d IP msg bytes, hex:", header->len);
+    for (int i = 0; i < header->len; i++ )
+    {
+        if ( (i&0xf)==0 )
+            printf("\n-- ");
+        printf(" %02x", ((const char *) packet)[i]);
+    }
+    printf(".\n");
+
     /* Send UDP packet to each destination point */
     for (unsigned i = 0; i < destination_points.size(); i++)
     {
