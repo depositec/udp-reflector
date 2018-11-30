@@ -70,7 +70,7 @@ static vector<unsigned short> ignore_ports;
 static vector<Network_Device> network_devices;
 
 /* Data offset within raw ethernet frame */
-static const int DATA_OFFSET = sizeof(struct ether_header) + 
+static int DATA_OFFSET = sizeof(struct ether_header) +
    sizeof(struct iphdr) + sizeof(struct udphdr);
 
 void enumerate_devices()
@@ -235,6 +235,7 @@ void print_usage()
     printf("ports which are used to prevent the infinite looping of packets between\n");
     printf("multiple udp_reflectors.\n");
     printf("\n");
+    printf("   -e, assume no ethernet header on frame (e.g. for VPN tun interfaces)\n");
     printf("   -s, source pcap interface and port\n");
     printf("   -d, destination ip address and port\n");
     printf("   -b, bind reflector socket to a specific source port (defaults to nonbinding)\n");
@@ -280,6 +281,7 @@ void print_usage()
 static void process_packet(u_char *x, const struct pcap_pkthdr *header,
         const u_char *packet)
 {
+    /* FIXME: honor the -e flag */
     struct udphdr *udp_hdr = (struct udphdr *) (packet
             + sizeof(struct ether_header) + sizeof(struct iphdr));
 
@@ -317,16 +319,10 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
     /* Send UDP packet to each destination point */
     for (unsigned i = 0; i < destination_points.size(); i++)
     {
-        bytes_sent = sendto(socket_desc, (const char *) packet + 0x1c,
-                mc_len, 0,
-                (struct sockaddr *) &destination_points[i].dest_sock_addr,
-                sizeof(destination_points[i].dest_sock_addr));
-        /*
         bytes_sent = sendto(socket_desc, (const char *) packet + DATA_OFFSET,
                 header->len - DATA_OFFSET, 0,
                 (struct sockaddr *) &destination_points[i].dest_sock_addr,
                 sizeof(destination_points[i].dest_sock_addr));
-                */
 
         if (verbose_debug)
         {
@@ -392,6 +388,12 @@ int main(int argc, char *argv[])
         {
             switch (argv[1][1])
             {
+            /* FIXME: should be done only once */
+            case 'e':
+                if (DATA_OFFSET > sizeof(struct ether_header))
+                    DATA_OFFSET -= sizeof(struct ether_header);
+                break;
+
             /* Source network interface and port */
             case 's':
                 pcap_dev = strtok(&argv[1][3], ":");
