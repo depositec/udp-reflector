@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
             {
             /* Assume there's no Ethernet header in the message */
             case 'e':
-                tweak_offset = -sizeof(struct ether_header);
+                tweak_offset = -int(sizeof(struct ether_header));
                 break;
 
             /* Source network interface and port */
