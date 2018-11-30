@@ -305,6 +305,7 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
     if (ignore_packet)
         return;
 
+    printf("-- DATA_OFFSET = %d\n", DATA_OFFSET);
     printf("-- detected %d IP msg bytes, hex:", header->len);
     for (int i = 0; i < header->len; i++ )
     {
