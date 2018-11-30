@@ -429,6 +429,7 @@ int main(int argc, char *argv[])
             /* Destination ip address and port */
             case 'd':
                 struct UDP_Destination udp_dest;
+                memset((char*)&udp_dest, 0, sizeof(udp_dest));
 
                 udp_dest.dest_addr = strtok(&argv[1][3], ":");
 
