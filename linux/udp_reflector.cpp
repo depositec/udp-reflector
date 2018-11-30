@@ -70,8 +70,9 @@ static vector<unsigned short> ignore_ports;
 static vector<Network_Device> network_devices;
 
 /* Data offset within raw ethernet frame */
-static int DATA_OFFSET = sizeof(struct ether_header) +
+static const int DATA_OFFSET = sizeof(struct ether_header) +
    sizeof(struct iphdr) + sizeof(struct udphdr);
+static int tweak_offset = 0;
 
 void enumerate_devices()
 {
@@ -281,9 +282,8 @@ void print_usage()
 static void process_packet(u_char *x, const struct pcap_pkthdr *header,
         const u_char *packet)
 {
-    /* FIXME: honor the -e flag */
     struct udphdr *udp_hdr = (struct udphdr *) (packet
-            + sizeof(struct ether_header) + sizeof(struct iphdr));
+            + sizeof(struct ether_header) + sizeof(struct iphdr) + tweak_offset);
 
     bool ignore_packet = false;
     int bytes_sent;
@@ -319,8 +319,10 @@ static void process_packet(u_char *x, const struct pcap_pkthdr *header,
     /* Send UDP packet to each destination point */
     for (unsigned i = 0; i < destination_points.size(); i++)
     {
-        bytes_sent = sendto(socket_desc, (const char *) packet + DATA_OFFSET,
-                header->len - DATA_OFFSET, 0,
+        bytes_sent = sendto(socket_desc,
+                (const char *) packet + DATA_OFFSET + tweak_offset,
+                header->len - DATA_OFFSET - tweak_offset,
+                0,
                 (struct sockaddr *) &destination_points[i].dest_sock_addr,
                 sizeof(destination_points[i].dest_sock_addr));
 
@@ -388,10 +390,9 @@ int main(int argc, char *argv[])
         {
             switch (argv[1][1])
             {
-            /* FIXME: should be done only once */
+            /* Assume there's no Ethernet header in the message */
             case 'e':
-                if (DATA_OFFSET > sizeof(struct ether_header))
-                    DATA_OFFSET -= sizeof(struct ether_header);
+                tweak_offset = -sizeof(struct ether_header);
                 break;
 
             /* Source network interface and port */
