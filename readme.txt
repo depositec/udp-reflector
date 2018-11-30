@@ -9,12 +9,21 @@ the error "Bind: Address Already in Use".  udp_reflector supports both multiple
 packet destinations and multiple ignore ports which are used to prevent the 
 infinite looping of packets between multiple udp_reflectors.
 
+WARNING: UNSAFE
+---------------
+
+WARNING: This is super hacky and unsafe tool, it obviously has a lot of risky
+buffer overflow etc. opportunities, and probably some undefined behaviors too;
+don't use it for anything bigger than a short session for debugging and quick
+tunneling. On the other hand, the code is super small and easy to understand
+and tweak if needed.
+
 License
 -------
 udp_reflector is licensed under the GNU GPL 3.0.
 
-Source code is available from the Subversion repository at the project's 
-homepage: http://code.google.com/p/udp-reflector/
+Original source code was available from the Subversion repository at the
+project's homepage: http://code.google.com/p/udp-reflector/
 
 Required software
 -----------------
@@ -28,6 +37,7 @@ Package is required for execution.
 
 Program options
 ---------------
+   -e, assume no ethernet header on frame (e.g. for VPN tun interfaces)
    -s, source pcap interface and port
    -d, destination ip address and port
    -b, bind reflector socket to a specific source port (defaults to nonbinding)
